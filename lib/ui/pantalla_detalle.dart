@@ -14,11 +14,10 @@ class PantallaDetalle extends StatefulWidget {
 class _PantallaDetalleState extends State<PantallaDetalle> {
   bool guardando = false;
 
-  Future<void> cambiar(String? valor) async {
-    if (valor == null) return;
+  Future<void> ejecutar(Future<void> Function() accion) async {
     setState(() => guardando = true);
     try {
-      await widget.gestor.cambiarEstado(widget.id, valor);
+      await accion();
       if (mounted) setState(() {});
     } catch (e) {
       if (mounted) {
@@ -27,6 +26,16 @@ class _PantallaDetalleState extends State<PantallaDetalle> {
     } finally {
       if (mounted) setState(() => guardando = false);
     }
+  }
+
+  Future<void> cambiar(String? valor) async {
+    if (valor == null) return;
+    await ejecutar(() => widget.gestor.cambiarEstado(widget.id, valor));
+  }
+
+  Future<void> cambiarPrioridad(String? valor) async {
+    if (valor == null) return;
+    await ejecutar(() => widget.gestor.cambiarPrioridad(widget.id, valor));
   }
 
   Widget fila(String etiqueta, String valor) {
@@ -76,6 +85,15 @@ class _PantallaDetalleState extends State<PantallaDetalle> {
                           .map((v) => DropdownMenuItem(value: v, child: Text(v)))
                           .toList(),
                       onChanged: guardando ? null : cambiar,
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: item.prioridad,
+                      decoration: const InputDecoration(labelText: 'Prioridad', border: OutlineInputBorder()),
+                      items: Incidencia.prioridades
+                          .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                          .toList(),
+                      onChanged: guardando ? null : cambiarPrioridad,
                     ),
                     if (guardando) const Padding(
                       padding: EdgeInsets.only(top: 12), child: LinearProgressIndicator(),
