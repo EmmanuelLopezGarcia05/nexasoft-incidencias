@@ -1,4 +1,7 @@
 class Incidencia {
+  static const List<String> prioridades = ['Baja', 'Media', 'Alta'];
+  static const String prioridadPorDefecto = 'Media';
+
   String id;
   String titulo;
   String descripcion;
@@ -6,6 +9,7 @@ class Incidencia {
   String categoria;
   String estado;
   String fecha;
+  String prioridad;
 
   Incidencia({
     required this.id,
@@ -15,7 +19,13 @@ class Incidencia {
     required this.categoria,
     required this.estado,
     required this.fecha,
+    this.prioridad = prioridadPorDefecto,
   });
+
+  static String normalizarPrioridad(Object? valor) {
+    final texto = valor?.toString() ?? '';
+    return prioridades.contains(texto) ? texto : prioridadPorDefecto;
+  }
 
   factory Incidencia.desdeJson(Map<String, dynamic> m) {
     return Incidencia(
@@ -26,6 +36,7 @@ class Incidencia {
       categoria: m['categoria']?.toString() ?? 'Software',
       estado: m['estado']?.toString() ?? 'Pendiente',
       fecha: m['fecha']?.toString() ?? '',
+      prioridad: normalizarPrioridad(m['prioridad']),
     );
   }
 
@@ -38,6 +49,7 @@ class Incidencia {
       'categoria': categoria,
       'estado': estado,
       'fecha': fecha,
+      'prioridad': prioridad,
     };
   }
 }

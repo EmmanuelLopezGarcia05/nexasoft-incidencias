@@ -15,4 +15,20 @@ void main() {
     expect(registro.id, 'INC-DEMO');
     expect(registro.toJson()['estado'], 'Pendiente');
   });
+
+  test('FEAT-001: incidencia antigua sin prioridad usa Media', () {
+    final r = Incidencia.desdeJson({'id': 'INC-OLD', 'estado': 'Pendiente'});
+    expect(r.prioridad, 'Media');
+  });
+
+  test('FEAT-001: prioridad no aprobada se reemplaza por Media', () {
+    final r = Incidencia.desdeJson({'id': 'INC-X', 'prioridad': 'Urgente'});
+    expect(r.prioridad, 'Media');
+  });
+
+  test('FEAT-001: prioridad valida se conserva y se guarda en JSON', () {
+    final r = Incidencia.desdeJson({'id': 'INC-Y', 'prioridad': 'Alta'});
+    expect(r.prioridad, 'Alta');
+    expect(r.toJson()['prioridad'], 'Alta');
+  });
 }
