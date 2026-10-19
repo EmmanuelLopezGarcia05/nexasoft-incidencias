@@ -2,6 +2,10 @@ import '../data/almacen_local.dart';
 import '../model/incidencia.dart';
 
 class GestorIncidencias {
+  static const String todos = 'Todos';
+  static const String todas = 'Todas';
+  static const List<String> estados = ['Pendiente', 'En proceso', 'Resuelta'];
+
   final AlmacenLocal datos = AlmacenLocal();
   List<Incidencia> incidencias = [];
 
@@ -9,15 +13,26 @@ class GestorIncidencias {
     incidencias = await datos.leer();
   }
 
-  List<Incidencia> buscar(String texto) {
+  static List<Incidencia> aplicarFiltros(List<Incidencia> lista,
+      {String texto = '', String estado = todos, String prioridad = todas}) {
     final consulta = texto.trim().toLowerCase();
-    if (consulta.isEmpty) return incidencias;
-    return incidencias
-        .where((x) =>
-            x.titulo.toLowerCase().contains(consulta) ||
-            x.descripcion.toLowerCase().contains(consulta))
-        .toList();
+    return lista.where((x) {
+      final coincideTexto = consulta.isEmpty ||
+          x.titulo.toLowerCase().contains(consulta) ||
+          x.descripcion.toLowerCase().contains(consulta);
+      final coincideEstado = estado == todos || x.estado == estado;
+      final coincidePrioridad = prioridad == todas || x.prioridad == prioridad;
+      return coincideTexto && coincideEstado && coincidePrioridad;
+    }).toList();
   }
+
+  List<Incidencia> filtrar(
+      {String texto = '', String estado = todos, String prioridad = todas}) {
+    return aplicarFiltros(incidencias,
+        texto: texto, estado: estado, prioridad: prioridad);
+  }
+
+  List<Incidencia> buscar(String texto) => filtrar(texto: texto);
 
   Incidencia? porId(String id) {
     for (var x in incidencias) {
